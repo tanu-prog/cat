@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Eye, Edit, Trash2, Phone, Mail, MapPin, Building, User } from 'lucide-react';
+import { Plus, Search, Filter, Eye, Edit, Trash2, Phone, Mail, MapPin, Building, User, Calendar, TrendingUp } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface Customer {
@@ -18,9 +18,14 @@ interface Customer {
   createdAt: string;
 }
 
-const Customers: React.FC = () => {
+interface CustomersProps {
+  onCustomerSelect?: (customer: Customer) => void;
+}
+
+const Customers: React.FC<CustomersProps> = ({ onCustomerSelect }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [businessTypeFilter, setBusinessTypeFilter] = useState('all');
@@ -69,6 +74,14 @@ const Customers: React.FC = () => {
     }
   };
 
+  const handleCreateCustomer = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleViewCustomer = (customer: Customer) => {
+    onCustomerSelect?.(customer);
+  };
+
   const businessTypes = ['Construction', 'Mining', 'Agriculture', 'Infrastructure', 'Manufacturing', 'Other'];
 
   if (loading) {
@@ -93,6 +106,59 @@ const Customers: React.FC = () => {
           <Plus className="h-5 w-5" />
           <span>Add Customer</span>
         </button>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="bg-white dark:bg-brand-accent rounded-2xl p-6 shadow-brand border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Customers</p>
+              <p className="text-2xl font-bold text-brand-accent dark:text-white">{customers.length}</p>
+            </div>
+            <div className="p-3 bg-brand-primary/10 rounded-xl">
+              <User className="h-6 w-6 text-brand-primary" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-brand-accent rounded-2xl p-6 shadow-brand border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Customers</p>
+              <p className="text-2xl font-bold text-green-600">{customers.filter(c => c.status === 'Active').length}</p>
+            </div>
+            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
+              <TrendingUp className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-brand-accent rounded-2xl p-6 shadow-brand border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Overdue Customers</p>
+              <p className="text-2xl font-bold text-red-600">{customers.filter(c => c.status === 'Overdue').length}</p>
+            </div>
+            <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-xl">
+              <Calendar className="h-6 w-6 text-red-600" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-brand-accent rounded-2xl p-6 shadow-brand border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Outstanding Dues</p>
+              <p className="text-2xl font-bold text-orange-600">
+                ₹{customers.reduce((sum, c) => sum + c.outstandingDues, 0).toLocaleString()}
+              </p>
+            </div>
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-xl">
+              <Building className="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filters and Search */}
@@ -204,6 +270,7 @@ const Customers: React.FC = () => {
               {/* Actions */}
               <div className="flex items-center space-x-2">
                 <button className="flex-1 inline-flex items-center justify-center space-x-2 px-4 py-2 bg-brand-primary hover:bg-brand-primary-light text-brand-accent text-sm font-bold rounded-xl transition-all duration-200 transform hover:scale-105">
+                  onClick={() => handleViewCustomer(customer)}
                   <Eye className="h-4 w-4" />
                   <span>View Details</span>
                 </button>
@@ -229,7 +296,9 @@ const Customers: React.FC = () => {
           <p className="text-gray-500 dark:text-gray-400 mb-6">
             {searchTerm ? 'Try adjusting your search criteria' : 'Get started by adding your first customer'}
           </p>
-          <button className="inline-flex items-center space-x-2 px-6 py-3 bg-brand-primary hover:bg-brand-primary-light text-brand-accent font-bold rounded-xl transition-all duration-200 transform hover:scale-105">
+          <button 
+            onClick={handleCreateCustomer}
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-brand-primary hover:bg-brand-primary-light text-brand-accent font-bold rounded-xl transition-all duration-200 transform hover:scale-105">
             <Plus className="h-5 w-5" />
             <span>Add Customer</span>
           </button>
