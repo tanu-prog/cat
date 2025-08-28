@@ -6,6 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'caterpillar': {
+          'yellow': '#FFCC00',
+          'yellow-light': '#FFD633',
+          'yellow-dark': '#E6B800',
+          'black': '#1A1A1A',
+          'gray': '#333333',
+        },
         'brand': {
           'primary': '#FFCC00',
           'primary-light': '#FFD633',

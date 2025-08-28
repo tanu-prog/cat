@@ -1,52 +1,37 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import TopNavigation from './components/TopNavigation';
 import Dashboard from './components/Dashboard';
+import Customers from './components/Customers';
+import RentalInventory from './components/RentalInventory';
+import Alerts from './components/Alerts';
+import Settings from './components/Settings';
+import Login from './components/Login';
+import { useAuth } from './contexts/AuthContext';
 import { NavItem } from './types';
-import { mockCustomers, mockMachines, mockAvailableMachines } from './mockdata/mockdata';
 
-function App() {
+function AppContent() {
   const [activeNav, setActiveNav] = useState<NavItem>('dashboard');
+  const { isAuthenticated, dealer } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   const renderContent = () => {
     switch (activeNav) {
       case 'dashboard':
-        return (
-          <Dashboard 
-            customers={mockCustomers}
-            machines={mockMachines}
-            availableMachines={mockAvailableMachines}
-          />
-        );
+        return <Dashboard />;
       case 'customers':
-        return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-brand-accent dark:text-white mb-4">Customers</h2>
-            <p className="text-gray-500 dark:text-gray-400">Customer management section coming soon...</p>
-          </div>
-        );
+        return <Customers />;
       case 'inventory':
-        return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-brand-accent dark:text-white mb-4">Rental Inventory</h2>
-            <p className="text-gray-500 dark:text-gray-400">Inventory management section coming soon...</p>
-          </div>
-        );
+        return <RentalInventory />;
       case 'alerts':
-        return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-brand-accent dark:text-white mb-4">Alerts</h2>
-            <p className="text-gray-500 dark:text-gray-400">Alerts and notifications section coming soon...</p>
-          </div>
-        );
+        return <Alerts />;
       case 'settings':
-        return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-brand-accent dark:text-white mb-4">Settings</h2>
-            <p className="text-gray-500 dark:text-gray-400">Settings and profile section coming soon...</p>
-          </div>
-        );
+        return <Settings />;
       default:
         return null;
     }
@@ -58,7 +43,11 @@ function App() {
         <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
         
         <div className="flex-1 flex flex-col overflow-hidden">
-          <TopNavigation dealerName="Prime Equipment Rentals" notificationCount={3} />
+          <TopNavigation 
+            dealerName={dealer?.name || 'Dealer'} 
+            notificationCount={3}
+            onNotificationClick={() => setActiveNav('alerts')}
+          />
           
           <main className="flex-1 overflow-auto p-6">
             {renderContent()}
@@ -66,6 +55,16 @@ function App() {
         </div>
       </div>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

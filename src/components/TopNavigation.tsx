@@ -6,7 +6,7 @@ import SearchBar from './SearchBar';
 interface TopNavigationProps {
   dealerName: string;
   notificationCount: number;
-  onNotificationClick?: () => void;
+  onNotificationClick: () => void;
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({ 
